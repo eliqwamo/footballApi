@@ -8,7 +8,7 @@ const matchSchema = new Schema({
     homeScore: Number,
     awayScore: Number,
     stadium: String,
-    matchDate: Date,
+    matchDate: { type: Date, default: Date.now },
     homeWin: Boolean
 });
 

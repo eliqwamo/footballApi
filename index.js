@@ -6,6 +6,9 @@ const app = express();
 app.use(bodyParser.urlencoded());
 app.use(bodyParser.json());
 
+const actionsRoute = require('./controllers/actions');
+app.use('/api', actionsRoute);
+
 const url = 'mongodb+srv://store_user:Q78kF0frybnjS3nx@cluster0.yrd6o.mongodb.net/store_db?retryWrites=true&w=majority';
 
 const port = 5090;
