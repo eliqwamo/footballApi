@@ -26,7 +26,7 @@ const last_names = new Promise((resolve, reject) => {
     }, 2000);
     setTimeout(() => {
         reject('No data for you');
-    }, 1000);
+    }, 5000);
 })
 
 Promise.all([first_names, last_names])
