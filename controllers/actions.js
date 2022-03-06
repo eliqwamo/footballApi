@@ -3,21 +3,42 @@ const router = express.Router();
 const mongoose = require('mongoose');
 const Match = require('../models/match');
 
-router.post('/createMatch', (request,response) => {
-    console.log('blabka');
-    const { homeTeamName, awayTeamName, homeScore,
-        awayScore, stadium, homeWin } = request.body;
-    const id = mongoose.Types.ObjectId();
+//READ
+router.get('/getMatches', async(request, response) => {
+    //VERSION 1
+    // try {
+    //     const matches = await Match.find();
+    //     return response.status(200).json({
+    //         message: matches
+    //     })
+    // } catch (error) {
+    //     return response.status(500).json({
+    //         message: error
+    //     })
+    // }
 
+    //VERSION 2
+    Match.find()
+    .then(results => {
+        return response.status(200).json({
+            message: results
+        })
+    })
+    .catch(err => {
+        return response.status(500).json({
+            message: err
+        })
+    })
+
+})
+
+//CREATE
+router.post('/createMatch', (request,response) => {
+
+    const { homeTeamName, awayTeamName, homeScore, awayScore, stadium, homeWin } = request.body;
+    const id = mongoose.Types.ObjectId();
     const _match = new Match({
-        _id: id,
-        homeTeamName: homeTeamName,
-        awayTeamName,
-        homeScore,
-        awayScore,
-        stadium,
-        homeWin
-    });
+        _id: id,homeTeamName,awayTeamName,homeScore,awayScore,stadium,homeWin});
     return _match.save()
     .then(results => {
         return response.status(200).json({
@@ -30,5 +51,14 @@ router.post('/createMatch', (request,response) => {
         })
     })
 })
+
+
+
+
+
+
+
+
+
 
 module.exports = router;
