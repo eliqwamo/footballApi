@@ -14,7 +14,6 @@ const url = 'mongodb+srv://store_user:Q78kF0frybnjS3nx@cluster0.yrd6o.mongodb.ne
 const port = 5090;
 mongoose.connect(url)
 .then(results => {
-    console.log(results);
     app.listen(port, function(){
         console.log(`Running via port ${port}`);
     })

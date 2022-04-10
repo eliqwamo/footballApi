@@ -5,6 +5,7 @@ const Match = require('../models/match');
 const User = require('../models/user');
 const bcryptjs = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const auth = require('./auth');
 
 //CREATE
 router.post('/createMatch', (request,response) => {
@@ -24,8 +25,12 @@ router.post('/createMatch', (request,response) => {
         })
     })
 })
+
+
+
 //READ
-router.get('/getMatches', async(request, response) => {
+router.get('/getMatches', auth, async(request, response) => {
+    console.log(request.user);
     Match.find()
     .then(results => {
         return response.status(200).json({
@@ -38,6 +43,11 @@ router.get('/getMatches', async(request, response) => {
         })
     })
 })
+
+
+
+
+
 //UPDATE
 router.put('/updateMatch/:id', async(request, response) => {
     const matchId = request.params.id;
@@ -219,6 +229,59 @@ router.post('/login', async(request, response) => {
 })
 
 
+//password_recover
+router.post('/password_recover', async(request,response) => {
+    const email = request.body.email;
+    User.findOne({email: email})
+    .then(account => {
+        if(account){
+            const code = generateCode(100000,999999);
+            account.passcode = code;
+            return account.save()
+            .then(passcode_updated => {
+                return response.status(200).json({
+                    message: passcode_updated
+                })
+            })
+        } else {
+            return response.status(200).json({
+                message: 'User not exist'
+            })
+        }
+    })
+    .catch(err => {
+        return response.status(500).json({
+            message: err
+        })
+    })
+})
+//verify
+//update_password
+router.post('/password_update', async(request,response) => {
+    const {email, newpassword} = request.body;
+    User.findOne({email: email})
+    .then(async account => {
+        if(account){
+            const hash = await bcryptjs.hash(newpassword,10);
+            account.password = hash;
+            return account.save()
+            .then(password_updated => {
+                return response.status(200).json({
+                    message: password_updated
+                })
+            })
+        } else {
+            return response.status(200).json({
+                message: 'User not exist'
+            })
+        }
+    })
+    .catch(err => {
+        return response.status(500).json({
+            message: err
+        })
+    })
+})
 
 
 function generateCode(min, max) {
