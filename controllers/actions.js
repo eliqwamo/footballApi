@@ -8,11 +8,21 @@ const jwt = require('jsonwebtoken');
 const auth = require('./auth');
 
 //CREATE
-router.post('/createMatch', (request,response) => {
+router.post('/createMatch', auth, async(request,response) => {
+    const user = request.user;
     const { homeTeamName, awayTeamName, homeScore, awayScore, stadium, homeWin } = request.body;
     const id = mongoose.Types.ObjectId();
     const _match = new Match({
-        _id: id,homeTeamName,awayTeamName,homeScore,awayScore,stadium,homeWin});
+        _id: id,
+        homeTeamName,
+        awayTeamName,
+        homeScore,
+        awayScore,
+        stadium,
+        homeWin,
+        pubName: user.firstName + ' ' + user.lastName, 
+        pubId: user._id
+    });
     return _match.save()
     .then(results => {
         return response.status(200).json({
@@ -26,12 +36,9 @@ router.post('/createMatch', (request,response) => {
     })
 })
 
-
-
 //READ
 router.get('/getMatches', auth, async(request, response) => {
-    console.log(request.user);
-    Match.find()
+    Match.find().populate('pubId')
     .then(results => {
         return response.status(200).json({
             message: results
@@ -45,11 +52,25 @@ router.get('/getMatches', auth, async(request, response) => {
 })
 
 
-
-
+router.post('/searchMatches', auth, async(request, response) => {
+    const searchTeam = request.body.searchTeam;
+    Match.find( { $or:[ {'homeTeamName':searchTeam}, {'awayTeamName':searchTeam} ]}).populate('pubId')
+    .then(results => {
+        return response.status(200).json({
+            message: results
+        })
+    })
+    .catch(err => {
+        return response.status(500).json({
+            message: err
+        })
+    })
+})
 
 //UPDATE
 router.put('/updateMatch/:id', async(request, response) => {
+
+
     const matchId = request.params.id;
 
     Match.findById(matchId)
@@ -97,7 +118,6 @@ router.delete('/removeMatch/:id', async(request, response) => {
         })
     })
 })
-
 
 //ACCOUNTS
 router.post('/createUser', async(request,response) => {
@@ -227,7 +247,6 @@ router.post('/login', async(request, response) => {
     //4.  generate token
     //5.  response
 })
-
 
 //password_recover
 router.post('/password_recover', async(request,response) => {
